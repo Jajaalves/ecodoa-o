@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,
+   initial-scale=1.0"/>
+   <link rel="shortcut icon" href="foto/favicon.jpg" type="image/x-icon">
+  <title>EcoDoação</title>
+  <style>
+    :root{
+      --green:#2e7d32;
+      --green-dark:#1b5e20;
+      --bg:#f4f7f6;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --glass: rgba(255,255,255,0.6);
+    }
+    *{box-sizing:border-box}
+    body{
+      font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      margin:0;
+      background: linear-gradient(180deg, #e8f5e9 0%, #f4f7f6 40%, #eef2f7 100%);
+      color:#111827;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding-bottom:60px;
+    }
+    header{
+      background: linear-gradient(90deg,var(--green),var(--green-dark));
+      color:white;
+      padding:28px 20px;
+      text-align:center;
+      box-shadow: 0 6px 18px rgba(46,125,50,0.18);
+    }
+    .redes-sociais {
+  position: fixed; /* fixo na tela */
+  top: 10px;       /* distância do topo */
+  right: 10px;     /* distância da direita */
+  z-index: 1000;   /* para ficar sobreposto */
+}
+
+.redes-sociais img {
+  width: 30px;     /* tamanho pequeno */
+  height: 30px;
+  object-fit: contain;
+}
+    header h1{margin:0;font-size:28px;letter-spacing:0.4px}
+    header p{margin:6px 0 0;opacity:0.95}
+
+
+    main{max-width:1000px;margin:22px auto;padding:0 18px;display:grid;grid-template-columns:360px 1fr;gap:20px;}
+    @media(max-width:880px){ main{grid-template-columns:1fr;padding:12px} }
+
+
+    .panel{
+      background:var(--card);
+      border-radius:12px;
+      padding:18px;
+      box-shadow:0 8px 24px rgba(16,24,40,0.06);
+      border:1px solid rgba(16,24,40,0.04);
+    }
+    .panel h2{margin:0 0 12px;color:var(--green);font-size:18px}
+    input, select, textarea, button{
+      font-size:14px;
+      font-family:inherit;
+    }
+    .form-group{margin-bottom:12px}
+    input[type="text"], input[type="date"], input[type="tel"], select, textarea{
+      width:100%; padding:10px 12px; border-radius:10px; border:1px solid #e6e9ee; background:linear-gradient(180deg,var(--glass),#fff);
+    }
+    textarea{min-height:78px; resize:vertical}
+    button.primary{
+      background:var(--green); color:white; padding:10px 14px; border-radius:10px; border:none; cursor:pointer;
+      transition:transform .12s ease, box-shadow .12s ease;
+    }
+    button.primary:hover{transform:translateY(-3px); box-shadow:0 10px 30px rgba(46,125,50,0.18)}
+    .small{font-size:13px;color:var(--muted)}
+
+
+    /* upload */
+    .upload{
+      border:2px dashed rgba(46,125,50,0.12);
+      padding:12px; border-radius:10px; text-align:center; background:linear-gradient(180deg,rgba(46,125,50,0.02),transparent);
+    }
+    .upload.dragover{border-color:var(--green); background: linear-gradient(180deg, rgba(46,125,50,0.06), transparent);}
+
+
+    /* list */
+    .controls{display:flex;gap:10px; align-items:center; margin-bottom:12px}
+    .search{flex:1}
+    .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+    .item{
+      background:linear-gradient(180deg,var(--card),#fbfffb);
+      border-radius:12px;padding:12px;border:1px solid rgba(16,24,40,0.04);
+      transition:transform .12s ease, box-shadow .12s ease; overflow:hidden;
+    }
+    .item:hover{transform:translateY(-6px); box-shadow:0 14px 35px rgba(16,24,40,0.06)}
+    .thumb{
+      height:140px;border-radius:10px; object-fit:cover; width:100%; display:block; margin-bottom:10px;
+      background:linear-gradient(135deg,#f0fff4,#f7fff9);
+    }
+    .meta{display:flex;justify-content:space-between;align-items:center}
+    .cat{font-weight:600;color:var(--green)}
+    .desc{margin:8px 0;color:#374151;font-size:14px}
+    .item .actions{display:flex;gap:8px}
+
+
+    .btn{
+      padding:8px 10px;border-radius:8px;border:none;cursor:pointer;font-weight:600;
+    }
+    .btn.ghost{background:transparent;border:1px solid rgba(16,24,40,0.06)}
+    .btn.positive{background:var(--green);color:white}
+    .btn.danger{background:#ef4444;color:white}
+    .muted{color:var(--muted);font-size:13px}
+
+
+    /* modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.55);display:none;align-items:center;justify-content:center;z-index:60}
+    .modal{background:white;padding:14px;border-radius:12px;max-width:720px;width:92%;box-shadow:0 30px 70px rgba(2,6,23,0.5)}
+    .modal img{width:100%;border-radius:10px;margin-bottom:10px}
+    .modal.show{animation:pop .16s ease}
+    @keyframes pop{from{transform:translateY(8px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+
+
+    footer{max-width:1000px;margin:18px auto;text-align:center;color:var(--muted);font-size:13px}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🌱 EcoDoação</h1>
+    <p>Doe recicláveis, coloque imagens e combine pontos com facilidade</p>
+  </header>
+  <section class="panel" style="margin-top:40px; max-width:600px; margin-left:auto; margin-right:auto;">
+  <h2 style="color: var(--green); text-align:center; margin-bottom:20px;">Como usar o EcoDoação - Passo a Passo</h2>
+  <ol style="font-size:16px; line-height:1.6; color:#374151; padding-left:20px;">
+    <li><strong>Cadastro:</strong> Preencha seu nome, data de nascimento e telefone no formulário de cadastro para se conectar como doador ou interessado.</li>
+    <li><strong>Disponibilizar Itens:</strong> No formulário “Disponibilizar Item”, selecione o tipo de reciclável que você quer doar, escreva uma descrição e adicione uma imagem ilustrativa.</li>
+    <li><strong>Pesquisar Itens:</strong> Na lista de “Itens Disponíveis”, use o campo de pesquisa ou filtro de categoria para encontrar itens de seu interesse rapidamente.</li>
+    <li><strong>Interesse e Contato:</strong> Clique no botão “Quero pegar” em qualquer item para visualizar detalhes e combinar diretamente o ponto de encontro com o doador.</li>
+    <li><strong>Gerencie seus Itens:</strong> Você pode remover ou editar os itens que cadastrou usando os botões disponíveis na lista.</li>
+    <li><strong>Visualização:</strong> Explore ideias e dicas para reutilizar recicláveis na seção “Ideias para reutilizar recicláveis”.</li>
+    <li><strong>Ajuda e Suporte:</strong> Caso tenha dúvidas, entre em contato pelo instagram,click no incone do instagram localizado no canto superior direito.</li>
+  </ol>
+</section>
+<section class="panel" aria-labelledby="ideiasTitle" style="margin-top:40px;">
+  <h2 id="ideiasTitle" style="color: var(--green);">Ideias para reutilizar recicláveis</h2>
+  <div id="carrosselIdeias" style="display:flex;overflow-x:auto;gap:16px; padding-bottom:10px;">
+    <!-- As ideias serão inseridas aqui dinamicamente -->
+  </div>
+</section>
+<div class="redes-sociais">
+  <nav class="redes">
+  <ul>
+    <li>
+  <a href="https://www.instagram.com/jarbson_jb.7/#" target="_blank" aria-label="Instagram">
+
+    <img src="foto/CiLjMbBUoAAOsFi.0.0.jpg" alt="Instagram" />
+  </a>
+  </li>
+  </ul>
+  </nav>
+</div>
+<script>
+  const ideias = [
+    {
+      titulo: "Vaso com Garrafa PET",
+      descricao: "Transforme garrafas PET em vasos para hortas verticais, basta cortar e pendurar.",
+      imagem: "foto/garrafa.jpg"  
+    },
+    {
+      titulo: "Luminária com Garrafas de Vidro",
+      descricao: "Utilize garrafas de vidro para criar luminárias decorativas únicas.",
+      imagem: "foto/luminaria de garrafa de vidro.jpg"
+    },
+    
+    
+  
+    
+    {
+      titulo: "Porta-Retrato com Potes de Vidro",
+      descricao: "Transforme potes de vidro em porta-retratos modernos e artesanais.",
+      imagem: "foto/Porta-retrato-potes-de-vidro.jpg"
+    },
+    {
+      titulo: "Decoração com Papelão",
+      descricao: "Use papelão para criar suportes, organizadores e brinquedos sustentáveis.",
+      imagem: "foto/Decoração com Papelão.jpg"
+    }
+  ];
+
+
+
+  const carrossel = document.getElementById('carrosselIdeias');
+
+  ideias.forEach(idea => {
+    const card = document.createElement('div');
+    card.style.minWidth = '220px';
+    card.style.border = '1px solid #e6e9ee';
+    card.style.borderRadius = '12px';
+    card.style.padding = '10px';
+    card.style.background = 'white';
+    card.style.boxShadow = '0 4px 12px rgba(46,125,50,0.1)';
+    card.style.textAlign = 'center';
+
+    card.innerHTML = `
+      <img src="${idea.imagem}" alt="${idea.titulo}" style="width:100%; border-radius:10px; object-fit:cover; height:140px; margin-bottom:8px;">
+      <h3 style="margin:6px 0; font-size:16px; color: var(--green);">${idea.titulo}</h3>
+      <p style="font-size:14px; color:#374151;">${idea.descricao}</p>
+    `;
+
+    carrossel.appendChild(card);
+  });
+</script>
+
+
+  <main>
+    <!-- coluna esquerda: formulários -->
+    <section class="panel" aria-labelledby="cadastroTitle">
+      <h2 id="cadastroTitle">Cadastro Rápido</h2>
+      <form id="cadastroForm">
+        <div class="form-group"><input type="text" id="nome" placeholder="Nome completo" required></div>
+        <div class="form-group"><input type="date" id="dataNascimento" required></div>
+        <div class="form-group"><input type="tel" id="telefone" placeholder="Telefone" required></div>
+        <div class="form-group"><textarea id="mensagem" placeholder="Mensagem (opcional)"></textarea></div>
+        <div class="form-group"><button class="primary" type="submit">Cadastrar</button></div>
+        <p class="small">Os cadastros ajudam a conectar doadores e interessados. Não compartilhamos dados sensíveis.</p>
+      </form>
+    </section>
+
+
+    <!-- coluna direita: doações e lista -->
+    <section>
+      <div class="panel" aria-labelledby="disponibilizarTitle">
+        <h2 id="disponibilizarTitle">Disponibilizar Item</h2>
+
+        <form id="itemForm">
+          <div class="form-group">
+            <select id="categoria" required>
+              <option value="">Selecione o tipo de reciclável</option>
+              <option value="Plástico">Plástico</option>
+              <option value="Alumínio">Alumínio</option>
+              <option value="Papelão">Papelão</option>
+              <option value="Roupas">Roupas</option>
+              <option value="Eletrônicos">Eletrônicos</option>
+              <option value="Outro">Outro (especificar)</option>
+            </select>
+            <input id="categoriaOutro" type="text" placeholder="Descreva o que você tem disponível" style="margin-top:8px;display:none;padding:8px;border-radius:8px;border:1px solid #e6e9ee;width:100%" />
+          </div>
+          <div class="form-group">
+            <textarea id="descricao" placeholder="Descrição do item" required></textarea>
+          </div>
+
+          <div class="form-group upload" id="dropzone">
+            <input type="file" id="imagem" accept="image/*" style="display:none" />
+            <div id="uploadState">
+              <p class="muted">Arraste e solte uma imagem aqui ou <button type="button" id="chooseBtn" class="btn ghost">Escolher imagem</button></p>
+              <p class="small">A imagem ajuda muito a atrair interessados (máx 5 MB).</p>
+            </div>
+            <div id="previewWrapper" style="display:none;margin-top:10px">
+              <img id="preview" class="thumb" alt="Preview da imagem"/>
+              <div style="display:flex;gap:8px;justify-content:center">
+                <button type="button" id="removeImage" class="btn ghost">Remover imagem</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:8px;align-items:center;margin-top:10px">
+            <button class="primary" type="submit">Adicionar</button>
+            <button type="button" id="clearAll" class="btn ghost">Limpar lista</button>
+            <div style="flex:1"></div>
+          </div>
+        </form>
+      </div>
+
+      <div class="panel" style="margin-top:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h2 style="margin:0">Itens Disponíveis</h2>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input id="search" class="search" placeholder="Pesquisar..." style="padding:8px;border-radius:8px;border:1px solid #e6e9ee">
+            <select id="filterCategoria" style="padding:8px;border-radius:8px;border:1px solid #e6e9ee">
+              <option value="">Todos</option>
+              <option>Plástico</option><option>Alumínio</option><option>Papelão</option><option>Roupas</option><option>Eletrônicos</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="listaItens" class="cards" style="margin-top:12px"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- modal simples -->
+  <div id="modal" class="modal-backdrop" role="dialog" aria-hidden="true">
+    <div class="modal" role="document">
+      <div id="modalContent"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+        <button id="modalClose" class="btn ghost">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>Feito com ♻️ • Projeto local — itens salvos no navegador</footer>
+
+  <script>
+    // Estado e referências
+    const itemForm = document.getElementById('itemForm');
+    const listaItens = document.getElementById('listaItens');
+    const imagemInput = document.getElementById('imagem');
+    const dropzone = document.getElementById('dropzone');
+    const chooseBtn = document.getElementById('chooseBtn');
+    const previewWrapper = document.getElementById('previewWrapper');
+    const preview = document.getElementById('preview');
+    const removeImage = document.getElementById('removeImage');
+    const search = document.getElementById('search');
+    const filterCategoria = document.getElementById('filterCategoria');
+    const clearAll = document.getElementById('clearAll');
+    const categoriaOutro = document.getElementById('categoriaOutro');
+    const cadastroForm = document.getElementById('cadastroForm');
+
+    const modal = document.getElementById('modal');
+    const modalContent = document.getElementById('modalContent');
+    const modalClose = document.getElementById('modalClose');
+
+    // Armazenamento unificado
+    const STORAGE_KEY = 'eco_data_v1';
+    let store = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') || { users: [], items: [] };
+
+    // migrar chave antiga se existir
+    try {
+      const old = JSON.parse(localStorage.getItem('eco_items_v1') || 'null');
+      if (Array.isArray(old) && old.length && (!store.items || store.items.length === 0)) {
+        store.items = old;
+        localStorage.removeItem('eco_items_v1');
+      }
+    } catch (e) { /* ignora */ }
+
+    let items = store.items;
+    let currentImageData = null;
+
+    function saveStore() { localStorage.setItem(STORAGE_KEY, JSON.stringify(store)); }
+
+    // util: proteção XSS mínima
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    }
+
+    // Render da lista
+    function renderList() {
+      const q = (search && search.value || '').trim().toLowerCase();
+      const cat = (filterCategoria && filterCategoria.value) || '';
+      listaItens.innerHTML = '';
+      const filtered = items.filter(it => {
+        if (cat && it.categoria !== cat) return false;
+        if (!q) return true;
+        return (it.categoria + ' ' + it.descricao).toLowerCase().includes(q);
+      });
+      if (filtered.length === 0) {
+        listaItens.innerHTML = '<p class="muted">Nenhum item encontrado.</p>';
+        return;
+      }
+      filtered.forEach((it, idx) => {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `
+          ${ it.imagem ? `<img src="${it.imagem}" alt="${escapeHtml(it.categoria)}" class="thumb" data-idx="${idx}">` : `<div style="height:140px;border-radius:10px;background:linear-gradient(135deg,#f0fff4,#f7fff9);display:flex;align-items:center;justify-content:center;color:#94a3b8">Sem imagem</div>`}
+          <div class="meta"><div class="cat">${escapeHtml(it.categoria)}</div><div class="muted">${new Date(it.created).toLocaleString()}</div></div>
+          <div class="desc">${escapeHtml(it.descricao)}</div>
+          <div class="actions">
+            <button class="btn positive" data-action="interesse" data-idx="${idx}">Quero pegar</button>
+            <button class="btn ghost" data-action="ver" data-idx="${idx}">Ver</button>
+            <button class="btn danger" data-action="remover" data-idx="${idx}">Remover</button>
+          </div>
+        `;
+        listaItens.appendChild(div);
+      });
+    }
+
+    // Mostrar/ocultar campo "Outro (especificar)"
+    if (categoriaOutro) {
+      const sel = document.getElementById('categoria');
+      if (sel) {
+        sel.addEventListener('change', (e) => {
+          if (e.target.value === 'Outro') {
+            categoriaOutro.style.display = 'block';
+            categoriaOutro.required = true;
+            categoriaOutro.focus();
+          } else {
+            categoriaOutro.style.display = 'none';
+            categoriaOutro.required = false;
+            categoriaOutro.value = '';
+          }
+        });
+      }
+    }
+
+    // Adicionar item (salva em store)
+    if (itemForm) {
+      itemForm.addEventListener('submit', e => {
+        e.preventDefault();
+        let categoriaVal = document.getElementById('categoria').value;
+        if (categoriaVal === 'Outro' && categoriaOutro) categoriaVal = categoriaOutro.value.trim();
+        const descricao = document.getElementById('descricao').value.trim();
+        if (!categoriaVal || !descricao) { alert('Preencha categoria e descrição'); return; }
+        const novo = { categoria: categoriaVal, descricao, imagem: currentImageData, created: Date.now() };
+        store.items.unshift(novo);
+        items = store.items;
+        saveStore();
+        renderList();
+        itemForm.reset();
+        currentImageData = null;
+        if (previewWrapper) previewWrapper.style.display = 'none';
+        const up = document.getElementById('uploadState');
+        if (up) up.style.display = 'block';
+        if (categoriaOutro) { categoriaOutro.style.display = 'none'; categoriaOutro.required = false; categoriaOutro.value = ''; }
+      });
+    }
+
+    // Upload / preview
+    if (chooseBtn) chooseBtn.addEventListener('click', () => imagemInput.click());
+    if (imagemInput) imagemInput.addEventListener('change', handleFile);
+
+    function handleFile(ev) {
+      const file = ev.target.files[0];
+      processFile(file);
+    }
+
+    // drag and drop
+    if (dropzone) {
+      ['dragenter', 'dragover'].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.add('dragover'); }));
+      ['dragleave', 'drop', 'dragend'].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.remove('dragover'); }));
+      dropzone.addEventListener('drop', e => {
+        const f = e.dataTransfer.files[0];
+        processFile(f);
+      });
+    }
+
+    function processFile(file) {
+      if (!file) return;
+      if (!file.type.startsWith('image/')) { alert('Envie apenas imagens.'); return; }
+      if (file.size > 5 * 1024 * 1024) { alert('Imagem muito grande. Máx 5 MB.'); return; }
+      const reader = new FileReader();
+      reader.onload = () => {
+        currentImageData = reader.result;
+        if (preview) {
+          preview.src = currentImageData;
+          previewWrapper.style.display = 'block';
+          const up = document.getElementById('uploadState');
+          if (up) up.style.display = 'none';
+        }
+      };
+      reader.onerror = () => {
+        alert('Erro ao carregar a imagem.');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    if (removeImage) removeImage.addEventListener('click', () => {
+      currentImageData = null;
+      if (imagemInput) imagemInput.value = '';
+      if (previewWrapper) previewWrapper.style.display = 'none';
+      const up = document.getElementById('uploadState');
+      if (up) up.style.display = 'block';
+    });
+
+    // Ações na lista (delegation)
+    if (listaItens) {
+      listaItens.addEventListener('click', e => {
+        const btn = e.target.closest('button') || e.target.closest('img');
+        if (!btn) return;
+        const action = btn.dataset.action;
+        const idx = Number(btn.dataset.idx);
+        if (e.target.tagName === 'IMG' && !action) { openModalForIndex(idx); return; }
+        if (action === 'interesse') {
+          const it = items[idx];
+          openModal(`${escapeHtml(it.categoria)} — Interesse`, `
+            ${ it.imagem ? `<img src="${it.imagem}" alt="">` : '' }
+            <p><strong>Descrição:</strong> ${escapeHtml(it.descricao)}</p>
+            <p><strong>Ponto de encontro:</strong> Praça Central da Cidade</p>
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+              <button id="confirmInterest" class="btn positive">Confirmar interesse</button>
+              <button id="cancelInterest" class="btn ghost">Fechar</button>
+            </div>
+          `);
+          const confirmBtn = modal.querySelector('#confirmInterest');
+          if (confirmBtn) confirmBtn.addEventListener('click', () => { alert('Obrigado! Combine com o doador no ponto de encontro.'); closeModal(); });
+        } else if (action === 'ver') {
+          openModalForIndex(idx);
+        } else if (action === 'remover') {
+          if (confirm('Remover este item?')) {
+            store.items.splice(idx, 1);
+            items = store.items;
+            saveStore();
+            renderList();
+          }
+        }
+      });
+    }
+
+    function openModalForIndex(idx) {
+      const it = items[idx];
+      openModal(`${escapeHtml(it.categoria)} — Detalhes`, `
+        ${ it.imagem ? `<img src="${it.imagem}" alt="">` : '' }
+        <p><strong>Descrição:</strong> ${escapeHtml(it.descricao)}</p>
+        <p><strong>Ponto de encontro:</strong> Praça Central da Cidade</p>
+      `);
+    }
+
+    function openModal(title, html) {
+      modalContent.innerHTML = `<h3 style="margin:0 0 10px;color:var(--green)">${title}</h3>` + html;
+      modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden', 'false');
+    }
+    function closeModal() {
+      modal.style.display = 'none';
+      modal.setAttribute('aria-hidden', 'true');
+    }
+    if (modalClose) modalClose.addEventListener('click', closeModal);
+    if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+    // pesquisa, filtro e limpar
+    if (search) search.addEventListener('input', renderList);
+    if (filterCategoria) filterCategoria.addEventListener('change', renderList);
+    if (clearAll) clearAll.addEventListener('click', () => {
+      if (confirm('Limpar todos os itens disponíveis?')) { store.items = []; items = store.items; saveStore(); renderList(); }
+    });
+
+    // cadastros (salvos em store.users)
+    if (cadastroForm) {
+      cadastroForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const nome = document.getElementById('nome').value.trim();
+        const dataNascimento = document.getElementById('dataNascimento').value;
+        const telefone = document.getElementById('telefone').value.trim();
+        const mensagem = document.getElementById('mensagem').value.trim();
+        if (!nome || !dataNascimento || !telefone) { alert('Preencha nome, data de nascimento e telefone.'); return; }
+        const user = { nome, dataNascimento, telefone, mensagem, created: Date.now() };
+        store.users.unshift(user);
+        saveStore();
+        alert('Cadastro realizado. Obrigado!');
+        cadastroForm.reset();
+      });
+    }
+
+    // inicializar
+    renderList();
+  </script>
+  <!-- Rodapé do site -->
+<footer style="background-color:#222; color:#fff; padding:20px; text-align:center; font-family:Arial, sans-serif; margin-top:50px;">
+  <!-- Informação de quem criou o site -->
+  <p style="margin:0; font-size:14px;">
+    Criado por <strong>Jarbson Alves Rodrigues</strong> © 2025
+  </p>
+  
+  <!-- Espaço para assinatura ou autenticidade -->
+  <p style="margin:10px 0 0; font-size:12px; font-style:italic;">
+    <em>Essa é uma assinatura de autenticidade exclusiva. Nenhum uso não autorizado.</em>
+  </p>
+  
+  <!-- Espaço para autenticação com sua assinatura digital, código ou marca d'água -->
+  <div style="margin-top:10px;">
+    <small>Autenticidade garantida por <strong>Jarbson Alves Rodrigues</strong> - Data: <span id="dataAutenticidade"></span></small>
+  </div>
+</footer>
+
+<script>
+  // Inserir automaticamente a data de autenticidade no rodapé
+  document.getElementById('dataAutenticidade').textContent = new Date().toLocaleString();
+</script>
+
+</body>
+</html>
